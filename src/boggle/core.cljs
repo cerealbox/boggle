@@ -45,7 +45,7 @@
 ;; (repl/connect "http://localhost:9000/repl")
 
 ;(defonce world (atom ["cat" "dog" "penguin"]))
-(def world (atom {:list ["cat" "dog" "penguin" "albatross"] :index 0}))
+(def world (atom {:list ["cat" "dog" "penguin" "albatross"] :index 0 :words {}}))
 
 ;(swap! my-atom assoc-in [:map :new-key] value)
 (defn on-click [e]
@@ -158,28 +158,38 @@
 ;testing words?:
 ;(println (words? (((words-trie "z") "o") "o") ))
 
-
 (defn find-from [board words [X Y :as XY] prev]
-	(def l ((board Y) X))
-	;(println l (map (fn [[x y]] ((board y) x) ) prev))
-	(if (contains? words l)
-		(doseq [xy (next-spots X Y prev)]
-			;(println X Y "next:" xy)
-			(if (not (empty? (words? (words l)))) (println "words:" (words? (words l))))
-			(find-from board (words l) xy (concat [XY] prev))
-		)
+	(let [l ((board Y) X)]
+		;(println l (map (fn [[x y]] ((board y) x) ) prev))
+		;(println (next-spots X Y prev))
+		(if (contains? words l)
+			(do 
+				;(println l (map (fn [[x y]] ((board y) x) ) prev))
+				(if (not (empty? (words? (words l)))) (println "word:" (first (words? (words l)))))
+				(doseq [xy (next-spots X Y prev)]
+					;(println X Y "next:" xy)
+					;(println l (map (fn [[x y]] ((board y) x) ) prev))
+					;(if (not (empty? (words? (words l)))) (println "words:" (words? (words l))))
+					(find-from board (words l) xy (concat [XY] prev))
+				)
+			)
 
-		;(next-spots x y [])
-		;(find-from board (words l) (+ x 1) (+ y 1)) ; x + 1, y - y, etc...  
-		;also, on this line check for complete words and add to found atom.
-	)
+			;(next-spots x y [])
+			;(find-from board (words l) (+ x 1) (+ y 1)) ; x + 1, y - y, etc...  
+			;also, on this line check for complete words and add to found atom.
+	))
 )
 
 ;|>
 
 (.clear js/console)
 (println "=====================")
-(println (find-from board words-trie [0 0] []))
+(doseq 
+	[xy (for [x (range 5) y (range 5)] [x y])]
+	(find-from board words-trie xy [])
+)
+;(println (find-from board words-trie [0 0] []))
+
 
 
 
